@@ -20,13 +20,24 @@ function getAllTopicIds(phases: Phase[]): string[] {
   return ids;
 }
 
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(`(?:^|;\\s*)${name}=([^;]*)`);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name: string, value: string, days: number = 365) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
 function getOrCreateDeviceId(): string {
   const key = "roadmap_device_id";
-  let id = localStorage.getItem(key);
+  let id = localStorage.getItem(key) || getCookie(key);
   if (!id) {
     id = crypto.randomUUID();
-    localStorage.setItem(key, id);
   }
+  localStorage.setItem(key, id);
+  setCookie(key, id);
   return id;
 }
 
